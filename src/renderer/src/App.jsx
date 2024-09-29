@@ -2,14 +2,10 @@ import React, { useRef, useState } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 
 const Box = (props) => {
-  // This reference will give us direct access to the mesh
   const meshRef = useRef()
-  // Set up state for the hovered and active state
   const [hovered, setHover] = useState(false)
   const [active, setActive] = useState(false)
-  // Subscribe this component to the render-loop, rotate the mesh every frame
   useFrame((state, delta) => (meshRef.current.rotation.z += delta))
-  // Return view, these are regular three.js elements expressed in JSX
   return (
     <mesh
       {...props}
@@ -25,10 +21,35 @@ const Box = (props) => {
   )
 }
 
+const Sphere = (props) => {
+  const meshRef = useRef()
+  const [hovered, setHover] = useState(false)
+  const [active, setActive] = useState(false)
+  useFrame((state, delta) => (meshRef.current.rotation.z += delta))
+  return (
+    <mesh
+      {...props}
+      ref={meshRef}
+      scale={active ? 1.5 : 1}
+      onClick={(event) => setActive(!active)}
+      onPointerOver={(event) => setHover(true)}
+      onPointerOut={(event) => setHover(false)}
+    >
+      <sphereGeometry args={[1, 32]} />
+      <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+    </mesh>
+  )
+}
+
 const App = () => {
   return (
     <>
-      <Canvas>
+      <Canvas
+        onCreated={(state) => {
+          console.log('创建成功')
+        }}
+        fallback={<div>Sorry no WebGL supported!</div>}
+      >
         <ambientLight intensity={Math.PI / 2} />
         <spotLight
           position={[10, 10, 10]}
@@ -39,7 +60,7 @@ const App = () => {
         />
         <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
         <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
+        <Sphere position={[3, 0, 0]} />
       </Canvas>
     </>
   )
